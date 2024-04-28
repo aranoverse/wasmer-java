@@ -18,6 +18,8 @@ else
         build_arch = amd64
     else ifeq ($(ARCH),arm64)
         build_arch = arm64
+    else ifeq ($(ARCH),aarch64)
+    	build_arch = aarch64
     else
         $(error Architecture not supported yet)
     endif
@@ -32,7 +34,7 @@ build: build-headers build-rust build-java
 build-rust: build-rust-$(build_arch)-$(build_os)
 
 # Compile the Rust part.
-build-rust-all-targets: build-rust-amd64-darwin build-rust-arm64-darwin build-rust-amd64-linux build-rust-amd64-windows
+build-rust-all-targets: build-rust-amd64-darwin build-rust-arm64-darwin build-rust-amd64-linux build-rust-aarch64-linux build-rust-amd64-windows
 
 build-rust-amd64-darwin:
 	rustup target add x86_64-apple-darwin
@@ -56,6 +58,13 @@ build-rust-amd64-linux:
 	mkdir -p artifacts/linux-amd64
 	cp target/x86_64-unknown-linux-gnu/release/libwasmer_jni.so artifacts/linux-amd64/
 	test -h target/current || ln -s x86_64-unknown-linux-gnu/release target/current
+
+build-rust-aarch64-linux:
+	rustup target add aarch64-unknown-linux-gnu
+	cargo build --release --target=aarch64-unknown-linux-gnu
+	mkdir -p artifacts/linux-arm64
+	cp target/aarch64-unknown-linux-gnu/release/libwasmer_jni.so artifacts/linux-arm64/
+	test -h target/current || ln -s aarch64-unknown-linux-gnu/release target/current
 
 build-rust-amd64-windows:
 	rustup target add x86_64-pc-windows-msvc
